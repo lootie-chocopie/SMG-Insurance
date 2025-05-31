@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Insurance Finder</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --secondary: #3f37c9;
+            --accent: #4895ef;
+            --light: #f8f9fa;
+            --dark: #212529;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: var(--dark);
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .hero {
+            margin-bottom: 1rem; /* Reduced margin */
+        }
+        
+        .search-wrapper {
+            position: relative;
+            max-width: 700px;
+            margin: 0 auto;
+            z-index: 100;
+        }
+        
+        /* Floating suggestions dropdown */
+        .floating-suggestions {
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 0;
+            width: 100%;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+            z-index: 1000;
+            max-height: 300px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        /* Main content area - pushed down */
+        .main-content {
+            position: relative;
+            margin-top: 2rem; /* Space for dropdown */
+            z-index: 1;
+        }
+        
+        /* Rest of your CSS remains unchanged */
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(to right, #4361ee, #3a0ca3);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            color: #6c757d;
+            max-width: 700px;
+            margin: 0 auto 2rem;
+        }
+        
+        .search-box {
+            width: 100%;
+            padding: 1.5rem 2rem;
+            font-size: 1.2rem;
+            border: none;
+            border-radius: 50px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            background: white;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%234361ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
+            background-repeat: no-repeat;
+            background-position: 2rem center;
+            padding-left: 4.5rem;
+        }
+        
+        .search-box:focus {
+            outline: none;
+            box-shadow: 0 15px 40px rgba(67, 97, 238, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .suggestion-chip {
+            padding: 0.6rem 1.2rem;
+            background: white;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
+            border: 1px solid #e9ecef;
+        }
+        
+        .suggestion-chip:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(67, 97, 238, 0.3);
+        }
+        
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .category-card {
+            background: white;
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: 1px solid #e9ecef;
+        }
+        
+        .category-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(67, 97, 238, 0.15);
+        }
+        
+        .category-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+        
+        .category-card h3 {
+            margin-bottom: 1rem;
+            color: var(--dark);
+        }
+        
+        .category-card p {
+            color: #6c757d;
+            font-size: 0.9rem;
+        }
+        
+        .suggestion-item {
+            padding: 1rem 2rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+        
+        .suggestion-item:hover {
+            background: #f8f9fa;
+        }
+        
+        .suggestion-item i {
+            margin-right: 1rem;
+            color: var(--accent);
+        }
+        
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+            
+            .categories {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero animate__animated animate__fadeIn">
+            <h1>Find Your Perfect Insurance</h1>
+            <p>Smart search helps you discover the right coverage for your needs in seconds</p>
+            
+            <div class="search-wrapper">
+                <input type="text" id="searchInput" class="search-box" placeholder="Try 'term life insurance' or 'health coverage'..." autocomplete="off">
+                <div class="floating-suggestions" id="suggestionsDropdown"></div>
+                
+                <div class="suggestions">
+                    <div class="suggestion-chip" onclick="search('term')">Term</div>
+                    <div class="suggestion-chip" onclick="search('life')">Life</div>
+                    <div class="suggestion-chip" onclick="search('health')">Health</div>
+                    <div class="suggestion-chip" onclick="search('car')">Car</div>
+                    <div class="suggestion-chip" onclick="search('travel')">Travel</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <h2 class="animate__animated animate__fadeIn" style="margin-bottom: 2rem;">Browse by Category</h2>
+            
+            <div class="categories">
+                <div class="category-card animate__animated animate__fadeInUp" onclick="search('term')">
+                    <div class="category-icon">🛡️</div>
+                    <h3>Term Insurance</h3>
+                    <p>Affordable protection for a specific period</p>
+                </div>
+                
+                <div class="category-card animate__animated animate__fadeInUp" onclick="search('life')" style="animation-delay: 0.1s">
+                    <div class="category-icon">❤️</div>
+                    <h3>Life Insurance</h3>
+                    <p>Lifetime coverage with savings benefits</p>
+                </div>
+                
+                <div class="category-card animate__animated animate__fadeInUp" onclick="search('health')" style="animation-delay: 0.2s">
+                    <div class="category-icon">🏥</div>
+                    <h3>Health Insurance</h3>
+                    <p>Comprehensive medical coverage</p>
+                </div>
+                
+                <div class="category-card animate__animated animate__fadeInUp" onclick="search('car')" style="animation-delay: 0.3s">
+                    <div class="category-icon">🚗</div>
+                    <h3>Vehicle Insurance</h3>
+                    <p>Protection for your car or bike</p>
+                </div>
+                
+                <div class="category-card animate__animated animate__fadeInUp" onclick="search('travel')" style="animation-delay: 0.4s">
+                    <div class="category-icon">✈️</div>
+                    <h3>Travel Insurance</h3>
+                    <p>Safety for your trips</p>
+                </div>
+                
+                <div class="category-card animate__animated animate__fadeInUp" onclick="search('home')" style="animation-delay: 0.5s">
+                    <div class="category-icon">🏠</div>
+                    <h3>Home Insurance</h3>
+                    <p>Protect your property</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Insurance data with synonyms and metadata
+        const insuranceData = [
+            {
+                id: "term-insurance",
+                name: "Term Insurance",
+                keywords: ["term", "temporary", "pure protection", "death benefit"],
+                icon: "🛡️",
+                description: "Affordable coverage for a specific period"
+            },
+            {
+                id: "life-insurance",
+                name: "Life Insurance",
+                keywords: ["life", "whole life", "permanent", "death benefit", "family protection"],
+                icon: "❤️",
+                description: "Lifetime coverage with savings component"
+            },
+            {
+                id: "health-insurance",
+                name: "Health Insurance",
+                keywords: ["health", "medical", "hospital", "doctor", "surgery"],
+                icon: "🏥",
+                description: "Coverage for medical expenses"
+            },
+            {
+                id: "vehicle-insurance",
+                name: "Vehicle Insurance",
+                keywords: ["car", "bike", "auto", "vehicle", "motor"],
+                icon: "🚗",
+                description: "Protection for your automobile"
+            },
+            {
+                id: "travel-insurance",
+                name: "Travel Insurance",
+                keywords: ["travel", "trip", "flight", "vacation", "abroad"],
+                icon: "✈️",
+                description: "Coverage while traveling"
+            },
+            {
+                id: "property-insurance",
+                name: "Property Insurance",
+                keywords: ["home", "house", "property", "renters", "fire"],
+                icon: "🏠",
+                description: "Protection for your home and belongings"
+            },
+            {
+                id: "child-insurance",
+                name: "Child Plans",
+                keywords: ["child", "education", "kids", "school", "college"],
+                icon: "🧒",
+                description: "Savings for your child's future"
+            },
+            {
+                id: "retirement-insurance",
+                name: "Retirement Plans",
+                keywords: ["retirement", "pension", "senior", "annuity", "401k"],
+                icon: "🧓",
+                description: "Income for your golden years"
+            },
+              {
+                id: "group-insurance",
+                name: "Group Plans",
+                keywords: ["group", "business", "shop", "annuity", "401k"],
+                icon: "🧓",
+                description: "Income for your golden years"
+            }
+        ];
+
+        // Smart search function
+            // In search.html, modify the search function
+function search(query) {
+    const searchTerm = query || document.getElementById('searchInput').value.toLowerCase().trim();
+    
+    if (!searchTerm) return;
+    
+    // Map search terms to service modal IDs
+    const serviceMap = {
+        'term': 'term-insurance',
+        'life': 'life-insurance',
+        'health': 'health-insurance',
+        'car': 'vehicle-insurance',
+        'vehicle': 'vehicle-insurance',
+        'travel': 'travel-insurance',
+        'home': 'home-insurance',
+        'retirement': 'retirement-plans',
+        'child': 'child-education',
+        'group': 'group-insurance'
+    };
+    
+    // Find matching service
+    const serviceId = serviceMap[searchTerm.toLowerCase()];
+    
+    if (serviceId) {
+        // Redirect to index.html with service hash and modal parameter
+        window.location.href = `index.html#${serviceId}&modal=1`;
+    } else {
+        // Show error message as before
+        const errorMessages = [
+            `Hmm, we couldn't find "${searchTerm}". Try something like "life insurance" or "car coverage"`,
+            `"${searchTerm}" doesn't match our products. Need health, life, or car insurance?`,
+            `Looking for "${searchTerm}"? We specialize in term, health, and vehicle insurance.`
+        ];
+        const randomMessage = errorMessages[Math.floor(Math.random() * errorMessages.length)];
+        alert(randomMessage);
+    }
+}
+        
+        // Search history (simple localStorage implementation)
+        function addToSearchHistory(term) {
+            let history = JSON.parse(localStorage.getItem('insuranceSearchHistory')) || [];
+            history.unshift({ term, timestamp: new Date().toISOString() });
+            history = history.slice(0, 5); // Keep only last 5 searches
+            localStorage.setItem('insuranceSearchHistory', JSON.stringify(history));
+        }
+        
+        // Autocomplete suggestions
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const term = e.target.value.toLowerCase().trim();
+            const dropdown = document.getElementById('suggestionsDropdown');
+            
+            if (!term) {
+                dropdown.style.display = 'none';
+                return;
+            }
+            
+            // Get matching suggestions
+            const matches = insuranceData.filter(insurance => 
+                insurance.name.toLowerCase().includes(term) || 
+                insurance.keywords.some(keyword => keyword.includes(term))
+            );
+            
+            // Display suggestions
+            if (matches.length) {
+                dropdown.innerHTML = matches.map(insurance => `
+                    <div class="suggestion-item" onclick="search('${insurance.keywords[0]}')">
+                        <i>${insurance.icon}</i>
+                        <div>
+                            <strong>${insurance.name}</strong>
+                            <div style="font-size: 0.8rem; color: #6c757d;">${insurance.description}</div>
+                        </div>
+                    </div>
+                `).join('');
+                dropdown.style.display = 'block';
+            } else {
+                dropdown.style.display = 'none';
+            }
+        });
+        
+        // Close dropdown when clicking outside
+        document.addEventListener('click', function(e) {
+            const dropdown = document.getElementById('suggestionsDropdown');
+            if (!e.target.closest('.search-container') && dropdown.style.display === 'block') {
+                dropdown.style.display = 'none';
+            }
+        });
+        
+        // Search on Enter
+        document.getElementById('searchInput').addEventListener('keypress', function(e) {
+            if (e.target.value && e.key === 'Enter') {
+                search();
+            }
+        });
+
+        
+    </script>
+
+    <script>
+    const searchInput = document.getElementById('searchInput');
+    const dropdown = document.getElementById('suggestionsDropdown');
+    const mainContent = document.querySelector('.main-content');
+
+    searchInput.addEventListener('input', function () {
+        const value = searchInput.value.trim().toLowerCase();
+
+        if (value.length > 0) {
+            const matched = insuranceData.filter(item =>
+                item.name.toLowerCase().includes(value) ||
+                item.keywords.some(k => k.includes(value))
+            );
+
+            if (matched.length > 0) {
+                dropdown.innerHTML = matched.map(item => `
+                    <div class="suggestion-item" onclick="search('${item.keywords[0]}')">
+                        <i>${item.icon}</i> ${item.name}
+                    </div>
+                `).join('');
+                dropdown.style.display = 'block';
+                mainContent.style.marginTop = '20rem'; // push it down
+            } else {
+                dropdown.style.display = 'none';
+                mainContent.style.marginTop = '2rem';
+            }
+        } else {
+            dropdown.style.display = 'none';
+            mainContent.style.marginTop = '2rem';
+        }
+    });
+
+
+</script>
+
+</body>
+</html>

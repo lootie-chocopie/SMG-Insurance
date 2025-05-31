@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Insurance Performance Leaders</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --ins-blue: #034da2;
+      --ins-gold: #f7c300;
+      --ins-red: #e63946;
+      --ins-dark: #1d3557;
+      --ins-light: #f5f7fa;
+    }
+    
+    .ins-body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ed 100%);
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      color: var(--ins-dark);
+    }
+
+    .ins-wrapper {
+      max-width: 900px;
+      width: 100%;
+      display: grid;
+      gap: 25px;
+    }
+
+    .ins-performance-card {
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      padding: 30px;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+      border-left: 6px solid var(--ins-blue);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .ins-performance-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(3,77,162,0.03) 0%, rgba(247,195,0,0.03) 100%);
+      z-index: 0;
+    }
+
+    .ins-performance-card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    }
+
+    .ins-performance-card.ins-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .ins-company-header {
+      font-size: 1.7em;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: var(--ins-blue);
+      position: relative;
+      display: inline-block;
+      z-index: 1;
+    }
+
+    .ins-company-header::after {
+      content: "";
+      position: absolute;
+      width: 0%;
+      height: 3px;
+      background: var(--ins-gold);
+      bottom: -4px;
+      left: 0;
+      transition: width 0.4s ease-in-out;
+      border-radius: 3px;
+    }
+
+    .ins-performance-card:hover .ins-company-header::after {
+      width: 100%;
+    }
+
+    .ins-coverage-type {
+      display: inline-block;
+      background: var(--ins-gold);
+      color: var(--ins-dark);
+      padding: 3px 10px;
+      border-radius: 15px;
+      font-size: 0.8em;
+      font-weight: 600;
+      margin-left: 10px;
+      transform: translateY(-2px);
+    }
+
+    .ins-branch-info {
+      margin: 8px 0;
+      font-size: 1.1em;
+      padding-left: 30px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .ins-branch-info::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      width: 22px;
+      height: 22px;
+      background-color: var(--ins-blue);
+      mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23000000'%3E%3Cpath d='M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z'/%3E%3C/svg%3E");
+      mask-repeat: no-repeat;
+      mask-position: center;
+      transition: all 0.3s ease;
+    }
+
+    .ins-performance-card:hover .ins-branch-info::before {
+      transform: scale(1.2) rotate(10deg);
+      background-color: var(--ins-red);
+    }
+
+    .ins-rank-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--ins-blue);
+      color: white;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      font-weight: bold;
+      margin-left: 8px;
+      position: relative;
+      top: -1px;
+    }
+
+    .ins-rank-badge.ins-top5 {
+      background: #2a9d8f;
+      width: auto;
+      padding: 0 12px;
+      border-radius: 15px;
+    }
+
+    .ins-rank-badge::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border: 2px solid var(--ins-gold);
+      border-radius: 50%;
+      left: 0;
+      top: 0;
+      animation: ins-pulse 2s infinite;
+      opacity: 0;
+    }
+
+    .ins-top5::after {
+      border-radius: 15px;
+    }
+
+    @keyframes ins-pulse {
+      0% {
+        transform: scale(1);
+        opacity: 0.7;
+      }
+      100% {
+        transform: scale(1.4);
+        opacity: 0;
+      }
+    }
+
+    .ins-highlight-tag {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: var(--ins-gold);
+      color: var(--ins-dark);
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-weight: bold;
+      font-size: 0.9em;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      z-index: 1;
+    }
+
+    .ins-stats-grid {
+      display: flex;
+      gap: 15px;
+      margin-top: 20px;
+      z-index: 1;
+    }
+
+    .ins-stat-item {
+      display: flex;
+      align-items: center;
+      font-size: 0.9em;
+    }
+
+    .ins-stat-icon {
+      margin-right: 5px;
+      color: var(--ins-blue);
+    }
+
+    .ins-floating-badge {
+      position: absolute;
+      right: 30px;
+      bottom: 30px;
+      font-size: 3em;
+      color: var(--ins-gold);
+      opacity: 0.3;
+      z-index: 0;
+      transition: all 0.5s ease;
+    }
+
+    .ins-performance-card:hover .ins-floating-badge {
+      transform: rotate(15deg) scale(1.2);
+      opacity: 0.5;
+    }
+
+    @media (max-width: 600px) {
+      .ins-company-header {
+        font-size: 1.4em;
+      }
+      
+      .ins-performance-card {
+        padding: 20px;
+      }
+      
+      .ins-floating-badge {
+        font-size: 2em;
+        right: 20px;
+        bottom: 20px;
+      }
+      
+      .ins-stats-grid {
+        flex-wrap: wrap;
+      }
+    }
+  </style>
+</head>
+<body class="ins-body">
+  <div class="ins-wrapper">
+    <div class="ins-performance-card">
+      <div class="ins-highlight-tag">Top Performer</div>
+      <div class="ins-company-header">UIIC <span class="ins-coverage-type">Motor Insurance</span></div>
+      <div class="ins-branch-info">POLLACHI Branch – <span class="ins-rank-badge">1</span></div>
+      <div class="ins-branch-info">COIMBATORE Region – <span class="ins-rank-badge ins-top5">Top 5</span></div>
+      
+      <div class="ins-stats-grid">
+        <div class="ins-stat-item"><i class="fas fa-chart-line ins-stat-icon"></i> 98% Claim Settlement</div>
+        <div class="ins-stat-item"><i class="fas fa-users ins-stat-icon"></i> 15K+ Customers</div>
+        <div class="ins-stat-item"><i class="fas fa-star ins-stat-icon"></i> 4.8 Rating</div>
+      </div>
+      
+      <i class="fas fa-medal ins-floating-badge"></i>
+    </div>
+
+    <div class="ins-performance-card">
+      <div class="ins-highlight-tag">Customer Choice</div>
+      <div class="ins-company-header">Star Health <span class="ins-coverage-type">Health Insurance</span></div>
+      <div class="ins-branch-info">POLLACHI Branch – <span class="ins-rank-badge">1</span></div>
+      
+      <div class="ins-stats-grid">
+        <div class="ins-stat-item"><i class="fas fa-chart-line ins-stat-icon"></i> 95% Claim Settlement</div>
+        <div class="ins-stat-item"><i class="fas fa-users ins-stat-icon"></i> 12K+ Customers</div>
+        <div class="ins-stat-item"><i class="fas fa-star ins-stat-icon"></i> 4.7 Rating</div>
+      </div>
+      
+      <i class="fas fa-award ins-floating-badge"></i>
+    </div>
+  </div>
+
+  <script>
+    // Animation for performance cards
+    document.addEventListener('DOMContentLoaded', function() {
+      const insCards = document.querySelectorAll('.ins-performance-card');
+      
+      insCards.forEach((card, index) => {
+        setTimeout(() => {
+          card.classList.add('ins-visible');
+        }, 300 * index);
+      });
+      
+      // Add pulse animation on hover
+      insCards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+          const badges = this.querySelectorAll('.ins-rank-badge');
+          badges.forEach(badge => {
+            badge.style.animation = 'ins-pulse 2s infinite';
+          });
+        });
+        
+        card.addEventListener('mouseleave', function() {
+          const badges = this.querySelectorAll('.ins-rank-badge');
+          badges.forEach(badge => {
+            badge.style.animation = '';
+          });
+        });
+      });
+    });
+  </script>
+</body>
+</html>
