@@ -49,32 +49,51 @@
   <!-- Spinner End -->
 
 
-  <!-- Navbar start -->
-  <div class="container-fluid nav-bar">
-    <div class="container">
-      <nav class="navbar navbar-light navbar-expand-lg py-4">
-        <a href="index.html">
-          <img src="img/Logo.png" class="navbar-logo" alt="">
-        </a>
-        <button class="navbar-toggler py-2 px-3" type="button" data-bs-toggle="collapse"
-          data-bs-target="#navbarCollapse">
-          <span class="fa fa-bars text-primary"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarCollapse">
-          <div class="navbar-nav mx-auto">
-            <a href="index.html" class="nav-item nav-link active">Home</a>
-            <a href="#abt" class="nav-item nav-link">About</a>
-            <a href="#ser" class="nav-item nav-link">Service</a>
-            <a href="#con" class="nav-item nav-link">Contact</a>
-          </div>
-          <a class="btn-search btn btn-primary btn-md-square me-4 rounded-circle d-none d-lg-inline-flex"
-            href="search.html"><i class="fas fa-search"></i></a>
-          <a href="" class="btn btn-primary py-2 px-4 d-none d-xl-inline-block rounded-pill">Book Now</a>
+<!-- Navbar Start -->
+<div class="container-fluid nav-bar bg-white shadow-sm sticky-top">
+  <div class="container">
+    <nav class="navbar navbar-expand-lg navbar-light">
+      <!-- Logo -->
+      <a class="navbar-brand" href="index.html">
+        <img src="img/Logo.png" class="navbar-logo" alt="Logo">
+      </a>
+
+      <!-- Toggler Button -->
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse"
+        aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="fa fa-bars text-primary fs-4"></span>
+      </button>
+
+      <!-- Navbar Links -->
+      <div class="collapse navbar-collapse bg-white rounded px-3 py-2 py-lg-0 px-lg-0" id="navbarCollapse">
+        <ul class="navbar-nav mx-auto mb-2 mb-lg-0 gap-lg-4">
+          <li class="nav-item">
+            <a href="index.html" class="nav-link active">Home</a>
+          </li>
+          <li class="nav-item">
+            <a href="#abt" class="nav-link">About</a>
+          </li>
+          <li class="nav-item">
+            <a href="#ser" class="nav-link">Service</a>
+          </li>
+          <li class="nav-item">
+            <a href="#con" class="nav-link">Contact</a>
+          </li>
+        </ul>
+
+        <!-- Right Buttons -->
+        <div class="d-flex align-items-center gap-2 mt-2 mt-lg-0">
+          <a class="btn btn-primary btn-md-square rounded-circle" href="search.html">
+            <i class="fas fa-search"></i>
+          </a>
+          <a href="#" class="btn btn-primary py-2 px-4 rounded-pill d-none d-xl-inline-block">Book Now</a>
         </div>
-      </nav>
-    </div>
+      </div>
+    </nav>
   </div>
-  <!-- Navbar End -->
+</div>
+<!-- Navbar End -->
+
 
 
   <!-- Hero Start -->
@@ -2040,6 +2059,61 @@
     .whatsapp-bubble {
       background: #128C7E;
     }
+@media (max-width: 768px) {
+  .branch-tabs .nav-link {
+    font-size: 14px;
+    margin: 5px 5px;
+    padding: 8px 12px;
+  }
+
+  .branch-header h4 {
+    font-size: 18px;
+  }
+
+  .branch-body p {
+    font-size: 14px;
+  }
+
+  .flip-btn {
+    font-size: 14px;
+    padding: 6px 10px;
+  }
+
+  .contact-card h3 {
+    font-size: 20px;
+  }
+
+  .contact-bubbles {
+    position: static;
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+  }
+}
+
+/* Ensure iframe containers are responsive */
+.branch-back iframe {
+  width: 100%;
+  height: 250px;
+  border: 0;
+  border-radius: 15px;
+}
+
+/* Maintain responsive height inside flip container */
+.branch-flip-container {
+  min-height: 350px;
+  position: relative;
+}
+
+.branch-card {
+  position: absolute;
+  width: 100%;
+  min-height: 350px;
+  height: auto;
+}
+
+
   </style>
   
 
@@ -2177,25 +2251,40 @@
       </div>
     </div>
 
-    <script>
-      // Tab Switching Functionality
-      document.querySelectorAll('.branch-tabs .nav-link').forEach(tab => {
-        tab.addEventListener('click', function () {
-          document.querySelectorAll('.branch-card').forEach(card => card.classList.remove('active'));
-          document.getElementById(`${this.dataset.branch}-card`).classList.add('active');
+<script>
+  // Tab Switching Functionality
+  document.querySelectorAll('.branch-tabs .nav-link').forEach(tab => {
+    tab.addEventListener('click', () => {
+      // Remove active state from all tabs
+      document.querySelectorAll('.branch-tabs .nav-link').forEach(t => t.classList.remove('active'));
+      // Set current tab as active
+      tab.classList.add('active');
 
-          document.querySelectorAll('.branch-tabs .nav-link').forEach(t => t.classList.remove('active'));
-          this.classList.add('active');
-        });
+      // Hide all branch cards
+      document.querySelectorAll('.branch-card').forEach(card => {
+        card.classList.remove('active');
       });
 
-      // Flip Card Functionality
-      document.querySelectorAll('.flip-btn').forEach(btn => {
-        btn.addEventListener('click', function () {
-          this.closest('.branch-card').classList.toggle('flipped');
-        });
-      });
-    </script>
+      // Show the selected branch card
+      const branchId = tab.getAttribute('data-branch') + '-card';
+      const selectedCard = document.getElementById(branchId);
+      if (selectedCard) selectedCard.classList.add('active');
+    });
+  });
+
+  // Flip Card Functionality
+  document.querySelectorAll('.flip-btn').forEach(button => {
+    button.addEventListener('click', () => {
+      const card = button.closest('.branch-card');
+      if (card.classList.contains('flipped')) {
+        card.classList.remove('flipped');
+      } else {
+        card.classList.add('flipped');
+      }
+    });
+  });
+</script>
+
     <!-- contact end  -->
 
 

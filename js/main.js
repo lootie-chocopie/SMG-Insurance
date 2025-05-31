@@ -11,6 +11,18 @@
     };
     spinner(0);
     
+  document.querySelectorAll('.navbar-collapse .nav-link').forEach(link => {
+    link.addEventListener('click', function () {
+      const navbarToggler = document.querySelector('.navbar-toggler');
+      const navbarCollapse = document.querySelector('.navbar-collapse');
+
+      // Only toggle if the navbar is currently shown
+      if (navbarToggler.offsetParent !== null && navbarCollapse.classList.contains('show')) {
+        navbarToggler.click(); // This simulates a toggle to collapse it
+      }
+    });
+  });
+    
     
     // Initiate the wowjs
     new WOW().init();
